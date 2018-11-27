@@ -163,4 +163,8 @@ secondary.scale(yvar = depth, xLeft=Ageaxis, cex.ylabel2 = 1, yvar2 = age, n = 7
 
 dev.off()
 
+# add a zero at the top of both axes 
 fix(secondary.scale)
+# line 17, 18 - change the code below to change where axis ticks/labels plot:
+# axis(side = 2, at = c(0, agedepth$y), labels = c(0, agedepth$x), las = 2, 
+    xpd = NA)
