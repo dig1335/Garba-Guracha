@@ -13,7 +13,7 @@ library(ggpalaeo)
 dictionary<-read.table("dictionary.csv", header=TRUE, sep=",", stringsAsFactors = FALSE)
 
 
-### conc. data seperatley to have conc data where there is no other data ###
+######### conc. data seperatley to have conc data where there is no other data #########
 # to show the very low conc. 
 
 concdepth <- diatom1$"depth"
@@ -35,11 +35,13 @@ completeFun <- function(diatom, desiredCols) {
   return(diatom[completeVec, ])
 }
 
+# Total counted will show 0 for no diatoms counted
+# but a transect was counted giving us concentration data  
 diatom <- completeFun(diatom, "Total counted")
-#######
+#########
 
 
-# all data
+# all data to be plotted
 
 diatom <- read.csv("Garba Guracha core count.csv", header=TRUE, sep=",", check.names=FALSE)
 
@@ -53,6 +55,9 @@ age.diatom <- age.diatom [, "median"]
 age.cal.diatom<-setNames(data.frame(age.diatom), c("AgeCal"))
 diatom <-cbind(age.cal.diatom, diatom)
 
+# Seperate axis limits and seperate graphs to be plotted. 
+# Concentration needs to be a data frame not values to plot
+
 depth <- diatom$"depth"
 age <- diatom$"AgeCal"
 conc <- diatom$"valves/g dry sediment"/1000
@@ -62,7 +67,7 @@ conc <- data.frame(conc)
 ## change any NA to 0 to be processed properly
 diatom[is.na(diatom <- diatom)] <- 0
 
-# extract depths for plotting later and remove unnec. columns
+# remove unnec. columns for prc/zoning
 diatom <- diatom[-1:-4]
 
 #prcurve
@@ -84,15 +89,13 @@ diatom <- diatom[, mxc>5]
 ## bind prc scores to the diatom dataset
 diatom <- cbind(prc, diatom)
 
-## remove PRC to plot seperatley 
+## isolate and remove PRC to plot seperatley 
 prcsep <- diatom[1]
 diatom <- diatom[-1]
 
 #add a blank column for lithology (prcsep[2]) and zones (prcsep[3])
-conc["depth"] <- depth
 prcsep["Lith"] <- 0
 prcsep["Zones"] <- 0
-conc <- data.frame(conc)
 
 # use for a future dendrogram from constrained cluster analysis
 diss <- dist(sqrt(diatom/100)^2)
@@ -157,14 +160,16 @@ addClustZone(prc, clust, 4, col="red", lty = 2)
 addClustZone(concplot, clust, 4, col="red", lty = 2)
 addClustZone(zones, clust, 4, col="red", lty = 2)
 
-# from ggpalaeo
-
-secondary.scale(yvar = depth, xLeft=Ageaxis, cex.ylabel2 = 1, yvar2 = age, n = 75, y.rev = TRUE, ylabel2 = "")
-
-dev.off()
+# from ggpalaeo | n = suggests the amount of ticks to use in the age axis
+# ?ggpalaeo::secondary.scale for more info!
 
 # add a zero at the top of both axes 
 fix(secondary.scale)
 # line 17, 18 - change the code below to change where axis ticks/labels plot:
-# axis(side = 2, at = c(0, agedepth$y), labels = c(0, agedepth$x), las = 2, 
+#!# axis(side = 2, at = c(0, agedepth$y), labels = c(0, agedepth$x), las = 2, 
     xpd = NA)
+## To just use the axis limits determined by your age/depth ranges   
+
+secondary.scale(yvar = depth, xLeft=Ageaxis, cex.ylabel2 = 1, yvar2 = age, n = 75, y.rev = TRUE, ylabel2 = "")
+
+dev.off()
